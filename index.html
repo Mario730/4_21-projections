@@ -527,6 +527,7 @@ var isRunning;
 var animationStart;
 var timeBase;
 var doLines = true;
+var doBg = false;
 var rootRadius = 2;
 var rotationSpeed = 1;
 
@@ -535,12 +536,12 @@ function computeAndDraw(time) {
     ctx.clearRect(0,0,1000,1000);
     computeProjectionMatrix(time);
     computeRootProjections();
-    if ( doLines )
-        drawLines();
-    else {
+    if ( doBg ) {
         ctx.fillStyle = "rgb(60,60,60)";
         ctx.fillRect(0,0,800,800);
     }
+    if ( doLines )
+        drawLines();
     drawPoints();
     var elt = document.getElementById("time");
     while ( elt.firstChild )
@@ -646,6 +647,15 @@ function updatePlane() {
       computeAndDraw(timeBase);
 }
 
+function updateBg() {
+    "use strict";
+    if ( ! updateFunc )
+        return;
+    doBg = !doBg;
+    if ( ! isRunning )
+      computeAndDraw(timeBase);
+}
+
 function onLoad() {
     "use strict";
     canvas = document.getElementById("canvas");
@@ -671,7 +681,7 @@ function onLoad() {
             animationStart = now();
             time = timeBase;
         } else {
-            time = timeBase + (now() - animationStart) * rotationSpeed/10000;
+            time = timeBase + (now() - animationStart) * rotationSpeed/20000;
         }
         computeAndDraw(time);
         if ( haveRequestAnimationFrame )
@@ -690,8 +700,7 @@ function onLoad() {
 </script>
 
 <style>
-
-    body {
+  body {
         background-color: #e4e9ff; /* Light gray */
     }
   /* Style for all buttons */
@@ -751,7 +760,8 @@ function onLoad() {
 <body onload="onLoad()">
   <p><input type="button" value="Pause" onclick="pauseButton()"
     /><input type="button" value="Toggle lines" onclick="toggleLines()"
-    /><input type="button" value="Warp" onclick="warpButton()"
+    /><input type="button" value="Toggle background" onclick="updateBg()"
+    /><input type="button" value="Warp to time" onclick="warpButton()"
     /><input type="button" value="Reset to random" onclick="resetButton()"
     /><input type="button" value="Reset to standard" onclick="resetButton(true)"
     /><input type="button" value="Toggle rectification" onclick="updateRectStage()"
@@ -764,7 +774,7 @@ function onLoad() {
 <div class="top">
   <p style="margin-right: 200px;"><var>t</var>=<span id="time">?</span></p>
   <label for="rad">Change dot radius:</label><input type="range" id="rad" min="0" max="5" value="2" oninput="updateRadius(this.value)">
-  <label for="speed">Rotation speed:</label><input type="range" id="speed" value="2" min="-5" max="5" oninput="updateRotSpeed(this.value)"></p>
+  <label for="speed">Rotation speed:</label><input type="range" id="speed" value="2" min="-10" max="10" oninput="updateRotSpeed(this.value)"></p>
 </div>
 
 <canvas id="canvas" width="1000" height="1000">
